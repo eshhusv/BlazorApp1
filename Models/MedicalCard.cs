@@ -1,0 +1,24 @@
+﻿using System;
+using System.Collections.Generic;
+
+namespace BlazorApp1.Models
+{
+    public class MedicalCard
+    {
+        public string MedicalCardId { get; set; } = null!;
+
+        public DateOnly DateOfIssue { get; set; }
+
+        public DateOnly LastAppeal { get; set; }
+
+        public DateOnly NextVisitDate { get; set; }
+
+        public string Diagnosis { get; set; } = null!;
+
+        public string MedicalHistory { get; set; } = null!;
+
+        public virtual ICollection<MedicalHistory> MedicalHistories { get; set; } = new List<MedicalHistory>();
+
+        public virtual ICollection<Patient> Patients { get; set; } = new List<Patient>();
+    }
+}

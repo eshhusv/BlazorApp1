@@ -1,0 +1,115 @@
+﻿@page "/"
+@using BlazorApp1.Models
+@rendermode RenderMode.InteractiveServer
+
+<PageTitle>Registration</PageTitle>
+<section>
+    <EditForm OnSubmit="@Submit" FormName="PatientForm" EditContext="editContext">
+        <DataAnnotationsValidator />
+        <h3>Регистрация</h3>
+        <p>
+            <InputText placeholder="Имя" @bind-Value="patient.Firstname" />
+            <ValidationMessage For="@(()=>patient.Firstname)"/>
+        </p>
+        <p>
+            <InputText placeholder="Фамилия" @bind-Value="patient.Surname" />
+            <ValidationMessage For="@(()=>patient.Surname)" />
+        </p>
+        <p>
+            <InputText placeholder="Отчество" @bind-Value="patient.Lastname" />
+            <ValidationMessage For="@(()=>patient.Lastname)" />
+        </p>
+        <p>
+            <InputText placeholder="Серия и номер паспорта" @bind-Value="patient.PassportSeriesAndNumber" />
+            <ValidationMessage For="@(()=>patient.PassportSeriesAndNumber)" />
+        </p>
+        <p>
+            <InputDate @bind-Value="patient.BirthDate" />
+            <ValidationMessage For="@(()=>patient.BirthDate)" />
+        </p>
+        <p>
+            <InputSelect class="select" @bind-Value="patient.Gender">
+                <option class="option" selected value="Male">Мужской</option>
+                <option class="option" value="Female">Женский</option>
+            </InputSelect>
+            <ValidationMessage For="@(()=>patient.Gender)" />
+        </p>
+        <p>
+            <InputText placeholder="Адрес" @bind-Value="patient.Address" />
+            <ValidationMessage For="@(()=>patient.Address)" />
+        </p>
+        <p>
+            <InputText placeholder="Номер телефона" @bind-Value="patient.PhoneNumber" />
+            <ValidationMessage For="@(()=>patient.PhoneNumber)" />
+        </p>
+        <p>
+            <InputText placeholder="Электронная почта" @bind-Value="patient.Email" />
+            <ValidationMessage For="@(()=>patient.Email)" />
+        </p>
+        <p>
+            <InputNumber placeholder="Номер страхового полиса" @bind-Value="patient.InsurancePolicy" />
+            <ValidationMessage For="@(()=>patient.InsurancePolicy)" />
+        </p>
+        <p>
+            <InputDate @bind-Value="patient.InsurancePolicyExpireDate"/>
+            <ValidationMessage For="@(()=>patient.InsurancePolicyExpireDate)" />
+        </p>
+        <button type="submit">Зарегистрироваться</button>
+        <p class="vanya">@message</p>
+    </EditForm>
+</section>    
+@code 
+{
+    Patient patient=new Patient();
+    string message = "";
+    int i = 0;
+    EditContext? editContext;
+    protected override void OnInitialized()
+    {
+        editContext = new(patient);
+    }
+
+    public Home()
+    {
+        patient = new();
+        patient.InsurancePolicyExpireDate = DateOnly.FromDateTime(DateTime.Now);
+        patient.BirthDate = DateOnly.FromDateTime(DateTime.Now);
+        patient.Gender = "Male";
+    }
+    
+    void Submit(){
+        if (editContext != null && editContext.Validate())
+        {
+            Random random = new Random();
+            using (ClinicContext db = new ClinicContext())
+            {
+                Patient? p = db.Patients.Where(p => p.PassportSeriesAndNumber == patient.PassportSeriesAndNumber).FirstOrDefault();
+                if (p == null)
+                {
+                    MedicalCard card = new MedicalCard();
+                    string res = string.Empty;
+                    for (int i = 0; i < 10; i++)
+                    {
+                        res += (char)random.Next(50, 120);
+                    }
+                    card.MedicalCardId = res;
+                    card.DateOfIssue = DateOnly.FromDateTime(DateTime.Now);
+                    db.MedicalCards.Add(card);
+                    patient.MedicalCard = card.MedicalCardId;
+                    db.Patients.Add(patient);
+                    db.SaveChanges();
+                }
+                else
+                {
+                    message = "Пользователь уже существует!";
+                    i++;
+                    i++;
+                }
+            }
+        }
+        else
+        {
+            message = "Тема убью";
+        }
+    }
+}

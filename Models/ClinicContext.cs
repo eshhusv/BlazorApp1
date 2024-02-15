@@ -1,0 +1,174 @@
+﻿using System;
+using System.Collections.Generic;
+using Microsoft.EntityFrameworkCore;
+
+namespace BlazorApp1.Models {
+    public class ClinicContext : DbContext
+    {
+        public ClinicContext()
+        {
+        }
+
+        public ClinicContext(DbContextOptions<ClinicContext> options)
+            : base(options)
+        {
+        }
+
+        public virtual DbSet<Doctor> Doctors { get; set; }
+
+        public virtual DbSet<Event> Events { get; set; }
+
+        public virtual DbSet<MedicalCard> MedicalCards { get; set; }
+
+        public virtual DbSet<MedicalHistory> MedicalHistories { get; set; }
+
+        public virtual DbSet<Patient> Patients { get; set; }
+
+        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
+            => optionsBuilder.UseSqlServer("Data Source=teacher209;Initial Catalog=Clinic;User ID=user1;Password=12345;Encrypt=False");
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.UseCollation("SQL_Latin1_General_CP1_CI_AS");
+
+            modelBuilder.Entity<Doctor>(entity =>
+            {
+                entity.HasKey(e => e.DoctorId).HasName("PK_Doctor_1");
+
+                entity.ToTable("Doctor");
+
+                entity.Property(e => e.DoctorId)
+                    .ValueGeneratedNever()
+                    .HasColumnName("Doctor_ID");
+                entity.Property(e => e.DoctorName)
+                    .HasMaxLength(50)
+                    .IsFixedLength()
+                    .HasColumnName("Doctor_name");
+            });
+
+            modelBuilder.Entity<Event>(entity =>
+            {
+                entity.ToTable("Event");
+
+                entity.Property(e => e.EventId).HasColumnName("Event_ID");
+                entity.Property(e => e.DoctorId).HasColumnName("Doctor_ID");
+                entity.Property(e => e.EventDate).HasColumnName("Event_date");
+                entity.Property(e => e.EventName)
+                    .HasMaxLength(100)
+                    .IsFixedLength()
+                    .HasColumnName("Event_name");
+                entity.Property(e => e.EventRecommendations)
+                    .HasMaxLength(500)
+                    .IsFixedLength()
+                    .HasColumnName("Event_recommendations");
+                entity.Property(e => e.EventResult)
+                    .HasMaxLength(100)
+                    .IsFixedLength()
+                    .HasColumnName("Event_result");
+                entity.Property(e => e.EventType)
+                    .HasMaxLength(50)
+                    .IsFixedLength()
+                    .HasColumnName("Event_type");
+                entity.Property(e => e.PatientId).HasColumnName("Patient_ID");
+
+                entity.HasOne(d => d.Doctor).WithMany(p => p.Events)
+                    .HasForeignKey(d => d.DoctorId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_Event_Doctor");
+
+                entity.HasOne(d => d.Patient).WithMany(p => p.Events)
+                    .HasForeignKey(d => d.PatientId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_Event_Patient");
+            });
+
+            modelBuilder.Entity<MedicalCard>(entity =>
+            {
+                entity.ToTable("Medical_card");
+
+                entity.Property(e => e.MedicalCardId)
+                    .HasMaxLength(10)
+                    .IsFixedLength()
+                    .HasColumnName("Medical_card_ID");
+                entity.Property(e => e.DateOfIssue).HasColumnName("Date_of_issue");
+                entity.Property(e => e.Diagnosis)
+                    .HasMaxLength(50)
+                    .IsFixedLength();
+                entity.Property(e => e.LastAppeal).HasColumnName("Last_appeal");
+                entity.Property(e => e.MedicalHistory)
+                    .HasMaxLength(10)
+                    .IsFixedLength()
+                    .HasColumnName("Medical_history");
+                entity.Property(e => e.NextVisitDate).HasColumnName("Next_visit_date");
+            });
+
+            modelBuilder.Entity<MedicalHistory>(entity =>
+            {
+                entity.ToTable("Medical_history");
+
+                entity.Property(e => e.MedicalHistoryId)
+                    .ValueGeneratedNever()
+                    .HasColumnName("Medical_history_ID");
+                entity.Property(e => e.IsVisited).HasColumnName("isVisited");
+                entity.Property(e => e.MedicalHistoryDate).HasColumnName("Medical_history_date");
+                entity.Property(e => e.PatientMedicalCard)
+                    .HasMaxLength(10)
+                    .IsFixedLength()
+                    .HasColumnName("Patient_medical_card");
+
+                entity.HasOne(d => d.PatientMedicalCardNavigation).WithMany(p => p.MedicalHistories)
+                    .HasForeignKey(d => d.PatientMedicalCard)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_Medical_history_Medical_card");
+            });
+
+            modelBuilder.Entity<Patient>(entity =>
+            {
+                entity.ToTable("Patient");
+
+                entity.Property(e => e.PatientId).HasColumnName("Patient_ID");
+                entity.Property(e => e.Address)
+                    .HasMaxLength(50)
+                    .IsFixedLength();
+                entity.Property(e => e.BirthDate).HasColumnName("Birth_date");
+                entity.Property(e => e.Email)
+                    .HasMaxLength(50)
+                    .IsFixedLength();
+                entity.Property(e => e.Firstname)
+                    .HasMaxLength(50)
+                    .IsFixedLength();
+                entity.Property(e => e.Gender)
+                    .HasMaxLength(7)
+                    .IsFixedLength();
+                entity.Property(e => e.InsurancePolicy).HasColumnName("Insurance_policy");
+                entity.Property(e => e.InsurancePolicyExpireDate).HasColumnName("Insurance_policy_expire_date");
+                entity.Property(e => e.Lastname)
+                    .HasMaxLength(50)
+                    .IsFixedLength();
+                entity.Property(e => e.MedicalCard)
+                    .HasMaxLength(10)
+                    .IsFixedLength()
+                    .HasColumnName("Medical_card");
+                entity.Property(e => e.PassportSeriesAndNumber)
+                    .HasMaxLength(10)
+                    .IsFixedLength()
+                    .HasColumnName("Passport_series_and_number");
+                entity.Property(e => e.PhoneNumber)
+                    .HasMaxLength(11)
+                    .IsFixedLength()
+                    .HasColumnName("Phone_number");
+                entity.Property(e => e.Surname)
+                    .HasMaxLength(50)
+                    .IsFixedLength();
+
+                entity.HasOne(d => d.MedicalCardNavigation).WithMany(p => p.Patients)
+                    .HasForeignKey(d => d.MedicalCard)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_Patient_Medical_card");
+            });
+
+        }
+
+    }
+}
