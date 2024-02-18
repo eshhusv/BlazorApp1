@@ -4,17 +4,18 @@ using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+//// Add services to the container.
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
-builder.Services.AddDbContext<ClinicContext>(opts => {
+builder.Services.AddDbContext<ClinicContext>(opts =>
+{
     opts.UseSqlServer(builder.Configuration[
     "ConnectionStrings:DefaultConnection"]);
     opts.EnableSensitiveDataLogging(true);
 });
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
+//// Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Error", createScopeForErrors: true);

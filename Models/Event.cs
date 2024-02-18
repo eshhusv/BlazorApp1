@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace BlazorApp1.Models
 {
-    public  class Event
+    public class Event
     {
         public int EventId { get; set; }
 

@@ -13,9 +13,9 @@ namespace BlazorApp1.Models
 
         public DateOnly NextVisitDate { get; set; }
 
-        public string Diagnosis { get; set; } = null!;
+        public string Diagnosis { get; set; }
 
-        public string MedicalHistory { get; set; } = null!;
+        public string MedicalHistory { get; set; }
 
         public virtual ICollection<MedicalHistory> MedicalHistories { get; set; } = new List<MedicalHistory>();
 
